@@ -38,7 +38,7 @@ class UserProductItem extends StatelessWidget {
                 try{
                   await Provider.of<Products>(context, listen: false).deleteProduct(id);
                 } catch (error) {
-                  await alert(context);
+                  await alert(context, 'Could not delete product');
                 }
                 
               },

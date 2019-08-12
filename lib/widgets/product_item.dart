@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/providers/auth.dart';
 
-import '../providers/Product.dart';
 import '../providers/cart.dart';
+import '../providers/product.dart';
 import '../screens/products_detail_screen.dart';
 
 class ProductItem extends StatelessWidget {
@@ -29,7 +30,7 @@ class ProductItem extends StatelessWidget {
               icon: Icon(
                   prod.isFavorite ? Icons.favorite : Icons.favorite_border),
               onPressed: () {
-                prod.toggleFavorite();
+                prod.toggleFavorite(Provider.of<Auth>(context, listen: false).token, Provider.of<Auth>(context, listen: false).userId);
               },
               color: Theme.of(context).accentColor,
             ),

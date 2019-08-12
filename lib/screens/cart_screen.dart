@@ -32,28 +32,65 @@ class CartScreen extends StatelessWidget {
                     label: Text('${cart.totalAmount}'),
                     backgroundColor: Theme.of(context).accentColor,
                   ),
-                  FlatButton(
-                    child: const Text('Order Now'),
-                    onPressed: () {
-                      Provider.of<Orders>(context,listen: false).addOrder(cart.cart.values.toList(), cart.totalAmount);
-                      cart.clear();
-                    },
-                    textColor: Theme.of(context).primaryColor,
-                  )
+                  OrderButton(cart: cart)
                 ],
               ),
             ),
           ),
           Divider(),
           Expanded(
-            child: ListView.builder(
-              itemCount: cart.itemCount,
-              itemBuilder: (ctx,index){
-                return CartItemW(cart.cart.values.toList()[index], cart.cart.keys.toList()[index]);
-              },
-            )),
+              child: ListView.builder(
+            itemCount: cart.itemCount,
+            itemBuilder: (ctx, index) {
+              return CartItemW(cart.cart.values.toList()[index],
+                  cart.cart.keys.toList()[index]);
+            },
+          )),
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key key,
+    @required this.cart,
+  }) : super(key: key);
+
+  final Cart cart;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  bool _isLoading = false;
+  @override
+  Widget build(BuildContext context) {
+    return _isLoading? CircularProgressIndicator() : FlatButton(
+      child: const Text('Order Now'),
+      onPressed: (widget.cart.totalAmount > 0 && !_isLoading)
+          ? () {
+              setState(() {
+                _isLoading = true;
+              });
+              Provider.of<Orders>(context, listen: false)
+                  .addOrder(
+                      widget.cart.cart.values.toList(), widget.cart.totalAmount)
+                  .then((_) {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    widget.cart.clear();})
+                  .catchError((_){
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  });
+            }
+          : null,
+      textColor: Theme.of(context).primaryColor,
     );
   }
 }

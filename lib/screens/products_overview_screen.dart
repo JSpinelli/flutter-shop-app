@@ -11,6 +11,8 @@ import '../widgets/products_grid.dart';
 enum FilterOptions { Favorites, All }
 
 class ProductsOverviewScreen extends StatefulWidget {
+
+  static const routeName = 'product-overview';
   @override
   _ProductsOverviewScreenState createState() => _ProductsOverviewScreenState();
 }
@@ -19,6 +21,10 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
 
   bool _isLoading=false;
 
+  _refreshProducts(BuildContext context){
+    return Provider.of<Products>(context).fetchAndSetProducts();
+  }
+
   @override
   void initState() {
     setState(() {
@@ -26,7 +32,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
     });
     Future.delayed(Duration.zero).then(
       (_){
-        Provider.of<Products>(context).fetchAndSetProducts().then(
+        _refreshProducts(context).then(
           (_){
             setState(() {
               _isLoading=false;
@@ -82,7 +88,9 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: _isLoading? Center(child: CircularProgressIndicator(),) : ProductsGrid(),
+      body: RefreshIndicator(
+        onRefresh: () => _refreshProducts(context),
+        child: _isLoading? Center(child: CircularProgressIndicator(),) : ProductsGrid()),
     );
     return scaffold;
   }
