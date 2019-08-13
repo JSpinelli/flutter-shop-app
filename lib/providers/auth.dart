@@ -37,7 +37,7 @@ class Auth with ChangeNotifier {
       final userData = json.encode({
         'token': _token,
         'expirydate': _expiryDate.toIso8601String(),
-        'userId':_userId 
+        'userId': _userId
       });
       prefs.setString('userdata', userData);
     } catch (err) {
@@ -45,19 +45,20 @@ class Auth with ChangeNotifier {
     }
   }
 
-  Future<bool> tryAutoLogin() async{
+  Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('userData')){
+    if (!prefs.containsKey('userdata')) {
       return false;
     }
-    final extractedUserData =  prefs.getString('userData') as Map<String,Object>;
+    final extractedUserData =
+        json.decode(prefs.getString('userdata')) as Map<String, Object>;
     final expiryDate = DateTime.parse(extractedUserData['expirydate']);
-    if (expiryDate.isAfter(DateTime.now())){
+    if (!expiryDate.isAfter(DateTime.now())) {
       return false;
     }
-    _token=extractedUserData['token'];
-    _userId=extractedUserData['userId'];
-    _expiryDate=extractedUserData['expirydate'];
+    _token = extractedUserData['token'];
+    _userId = extractedUserData['userId'];
+    _expiryDate = expiryDate;
     notifyListeners();
     return true;
   }
@@ -88,6 +89,7 @@ class Auth with ChangeNotifier {
   }
 
   void logout() async {
+    print('Me llamaron???');
     _token = null;
     _expiryDate = null;
     _userId = null;

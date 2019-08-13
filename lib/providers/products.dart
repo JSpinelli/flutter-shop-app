@@ -94,7 +94,6 @@ class Products with ChangeNotifier {
       ?'https://flutter-app-16bce.firebaseio.com/products.json?auth=$authToken'
       :'https://flutter-app-16bce.firebaseio.com/products.json?auth=$authToken&orderBy="creatorId"&equalTo="$userId"';
       final responseData = await http.get(url);
-      print(responseData.body);
       final extractedData = json.decode(responseData.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
       if (extractedData == null){
@@ -115,9 +114,7 @@ class Products with ChangeNotifier {
       });
       _items = loadedProducts;
       notifyListeners();
-    } catch(error) {
-      print('Hubo un erro aca');
-      print(error);
+    } catch(error) {;
       throw (error);
     }
   }

@@ -46,7 +46,6 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.portrait),
             title: const Text('Profile'),
             onTap: () {
-              Provider.of<Auth>(context,listen: false).logout();
               Navigator.of(context).pop();
               Navigator.of(context).pushReplacementNamed(ProfileScreen.routeName);
             },

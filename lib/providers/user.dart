@@ -5,6 +5,9 @@ class User with ChangeNotifier{
   String name;
   String surname;
   String profileImage;
-  List<String> favoriteCategories;
+  List<String> favoriteCategories = ['Gym','Food'];
 
+  bool isFavorite(String cat){
+    return favoriteCategories.contains(cat);
+  }
 }

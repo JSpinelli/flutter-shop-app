@@ -5,6 +5,7 @@ import './providers/auth.dart';
 import './providers/cart.dart';
 import './providers/orders.dart';
 import './providers/products.dart';
+import './providers/user.dart';
 import './screens/auth-screen.dart';
 import './screens/cart_screen.dart';
 import './screens/edit_product_screen.dart';
@@ -25,6 +26,9 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(
             builder: (ctx) => Auth(),
+          ),
+          ChangeNotifierProvider(
+            builder: (ctx) => User(),
           ),
           ChangeNotifierProxyProvider<Auth, Products>(
             builder: (ctx,auth,prevProducts) => Products(auth.token,auth.userId,prevProducts==null? [] : prevProducts.items),
