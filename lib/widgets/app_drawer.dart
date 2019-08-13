@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth.dart';
 import '../screens/orders_screen.dart';
 import '../screens/products_overview_screen.dart';
+import '../screens/profile-screen.dart';
 import '../screens/user_products_screen.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -42,6 +43,16 @@ class AppDrawer extends StatelessWidget {
           ),
           Divider(),
           ListTile(
+            leading: const Icon(Icons.portrait),
+            title: const Text('Profile'),
+            onTap: () {
+              Provider.of<Auth>(context,listen: false).logout();
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed(ProfileScreen.routeName);
+            },
+          ),
+          Divider(),
+          ListTile(
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Logout'),
             onTap: () {
@@ -49,7 +60,7 @@ class AppDrawer extends StatelessWidget {
               Navigator.of(context).pop();
               Navigator.of(context).pushReplacementNamed('/');
             },
-          )
+          ),
         ],
       ),
     );

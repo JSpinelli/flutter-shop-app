@@ -61,6 +61,7 @@ class Cart with ChangeNotifier{
     }else{
       _cart.remove(prodId);
     }
+    notifyListeners();
   }
 
   void addItem(String productId, double price, String title, int quantity){
