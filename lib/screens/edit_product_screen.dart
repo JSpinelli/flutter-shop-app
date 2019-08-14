@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/providers/product.dart';
 import 'package:shop_app/providers/products.dart';
@@ -20,6 +23,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   bool _isInit = false;
   bool _isEdit = false;
   bool _isLoading = false;
+  bool imageLoaded = false;
 
   var _initValues = {
     'title': '',
@@ -31,6 +35,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   double price;
   String description;
   String imageUrl;
+  File imageFile;
 
   Product product;
 
@@ -50,6 +55,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.initState();
   }
 
+  void _takePicture() async {
+     final file = await ImagePicker.pickImage(source: ImageSource.camera, maxHeight: 600, maxWidth: 600);
+     setState(() {
+       imageFile = file;
+       imageUrl = null;
+       imageLoaded = true;
+     });
+  }
   @override
   void didChangeDependencies() {
     if (!_isInit) {
@@ -210,7 +223,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                 ? const Text('Enter Url')
                                 : FittedBox(
                                     child:
-                                        Image.network(_imageUrlController.text),
+                                        imageLoaded? Image.file(imageFile) : Image.network(_imageUrlController.text),
                                     fit: BoxFit.cover,
                                   ),
                           ),
@@ -232,7 +245,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             ),
                           )
                         ],
-                      )
+                      ),
+                      Divider(),
+                      Center(
+                        child: const Text('Or', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700),),
+                      ),
+                      FlatButton(
+                        child: Text('Take a picture', style: TextStyle(fontSize: 20),),
+                        onPressed: _takePicture,
+                        color: Theme.of(context).accentColor,
+                      ),
                     ],
                   ),
                 ),

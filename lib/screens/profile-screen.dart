@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/providers/user.dart';
 
 import '../providers/categories.dart';
+import '../providers/user.dart';
+import '../widgets/alert.dart';
 import '../widgets/app_drawer.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -15,15 +19,91 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final GlobalKey<FormState> _form = GlobalKey();
 
+  bool _isLoading = false;
+
+  String name;
+  String surname;
+  String profileImage;
+  String adress;
+  List<String> favoriteCategories=[];
+  bool _init_state =true;
+  File imageFile = null;
+
+  void _saveUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    if (_form.currentState.validate()) {
+      _form.currentState.save();
+
+      try {
+        await Provider.of<User>(context, listen: false).updateuser(
+            name, surname, adress, profileImage, favoriteCategories);
+      } catch (error) {
+        await alert(context, 'Could not reach database');
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.of(context).pushReplacementNamed('/');
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_init_state) {
+      User userData = Provider.of<User>(context, listen: false);
+      if (userData != null) {
+        name = userData.name == null ? ' ' : userData.name;
+        surname = userData.surname == null ? ' ' : userData.surname;
+        adress = userData.adress == null ? ' ' : userData.adress;
+        profileImage =
+            userData.profileImage == null ? ' ' : userData.profileImage;
+        favoriteCategories = userData.favoriteCategories == null
+            ? []
+            : userData.favoriteCategories;
+      }
+      _init_state=false;
+    }
+    super.didChangeDependencies();
+  }
+
+  void _toogleFavorite(String cat) {
+    var index = favoriteCategories.indexWhere((elem) {
+      return elem == cat;
+    });
+    setState(() {
+      if (index == -1) {
+        favoriteCategories.add(cat);
+      } else {
+        favoriteCategories.removeAt(index);
+      }
+    });
+  }
+
+  void _takePicture() async {
+     final file = await ImagePicker.pickImage(source: ImageSource.camera, maxHeight: 600, maxWidth: 600);
+     setState(() {
+       imageFile = file;
+     });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final userData = Provider.of<User>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.check),
+            onPressed: () {
+              _saveUser();
+            },
+          )
+        ],
       ),
       drawer: AppDrawer(),
-      body: SingleChildScrollView(
+      body: _isLoading? Center(child: CircularProgressIndicator(),):SingleChildScrollView(
         child: Column(
           children: <Widget>[
             Card(
@@ -37,15 +117,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       margin: EdgeInsets.all(10),
                       child: Stack(
                         children: <Widget>[
-                          Image.network(
+                          imageFile == null? Image.network(
                             'http://s3.amazonaws.com/37assets/svn/765-default-avatar.png',
                             height: 150,
                             width: 150,
                             fit: BoxFit.cover,
-                          ),
+                          ):
+                          Image.file(
+                            imageFile,height: 150,
+                            width: 150,
+                            fit: BoxFit.cover,),
                           IconButton(
                             icon: const Icon(Icons.edit),
-                            onPressed: () {},
+                            onPressed: () {
+                              _takePicture();
+                            },
                           )
                         ],
                       ),
@@ -59,20 +145,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               decoration:
                                   const InputDecoration(labelText: 'Name'),
                               textInputAction: TextInputAction.next,
-                              onSaved: (_) {},
+                              onSaved: (value) {
+                                name = value;
+                              },
+                              initialValue: name,
                               onFieldSubmitted: (_) {},
                             ),
                             TextFormField(
                               decoration:
                                   const InputDecoration(labelText: 'Surname'),
                               textInputAction: TextInputAction.next,
-                              onSaved: (_) {},
+                              onSaved: (value) {
+                                surname = value;
+                              },
+                              initialValue: surname,
                               onFieldSubmitted: (_) {},
                             ),
                             TextFormField(
                               decoration:
                                   const InputDecoration(labelText: 'Adress'),
-                              onSaved: (_) {},
+                              onSaved: (value) {
+                                adress = value;
+                              },
+                              initialValue: adress,
                               onFieldSubmitted: (_) {},
                             ),
                           ],
@@ -116,11 +211,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       IconButton(
                                         icon: Icon(
                                           icon,
-                                          color: userData.isFavorite(name)
-                                              ? Colors.red
-                                              : Colors.green,
+                                          color:
+                                              favoriteCategories.contains(name)
+                                                  ? Colors.green
+                                                  : Colors.grey,
                                         ),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          _toogleFavorite(name);
+                                        },
                                       ),
                                       Text(name),
                                     ],

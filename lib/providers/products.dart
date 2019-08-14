@@ -99,7 +99,7 @@ class Products with ChangeNotifier {
       if (extractedData == null){
         return;
       }
-      final favoritesResponse = await http.get('https://flutter-app-16bce.firebaseio.com/usersFavorites/$userId.json?auth=$authToken');
+      final favoritesResponse = await http.get('https://flutter-app-16bce.firebaseio.com/users/$userId/favoriteProducts.json?auth=$authToken');
       final favoriteData = json.decode(favoritesResponse.body);
 
       extractedData.forEach((id, prod) {

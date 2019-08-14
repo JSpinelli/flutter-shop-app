@@ -24,7 +24,7 @@ class Product with ChangeNotifier {
     notifyListeners();
     try {
       final response = await http.put(
-          'https://flutter-app-16bce.firebaseio.com/usersFavorites/$userId/$id.json?auth=$tokenId',
+          'https://flutter-app-16bce.firebaseio.com/users/$userId/favoriteProducts/$id.json?auth=$tokenId',
           body: json.encode(isFavorite));
       if (response.statusCode >= 400) {
         isFavorite = !isFavorite;

@@ -34,10 +34,10 @@ class Orders with ChangeNotifier {
   }
   
   Future<void> fetchAndsetOrder() async {
-    var response;
+    http.Response response;
     try {
       response = await http.get(
-        'https://flutter-app-16bce.firebaseio.com/$userId/orders.json?auth=$authToken',
+        'https://flutter-app-16bce.firebaseio.com/orders/$userId.json?auth=$authToken',
       );
       final List<OrderItem> loadedOrders = [];
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -63,6 +63,7 @@ class Orders with ChangeNotifier {
       _order = loadedOrders.reversed.toList();
       notifyListeners();
     } catch (err) {
+      
       throw('Error re-try');
     }
   }
